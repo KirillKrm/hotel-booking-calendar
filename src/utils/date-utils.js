@@ -8,6 +8,11 @@ export function getMondayDate(date) {
   return mondayDate
 }
 
+export function moveDateByOffset(date, daysOffset) {
+  date = new Date(date)
+  return date.setDate(date.getDate() + daysOffset)
+}
+
 export function isDateInRange(dateToCheck, startDate, endDate) {
   const date = new Date(dateToCheck)
   const start = new Date(startDate)

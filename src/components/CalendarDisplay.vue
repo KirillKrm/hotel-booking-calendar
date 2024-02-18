@@ -15,10 +15,12 @@
       <tbody class="calendar__body">
         <tr id="roomRow" :style="{ position: 'relative' }" v-for="(roomDetails, index) in roomDetails" :key="index">
           <th class="body__room">{{ roomDetails.name }}</th>
-          <th class="body__cell" v-for="(date, index) in currentWeek" :key="index"></th>
+          <th v-for="(date, index) in currentWeek" :key="index"></th>
 
           <div v-for="booking in bookingsInWeekForRoom(roomDetails)" :key="booking.id">
-            <div v-bind="getBookingStyle(booking)">{{ booking.name }}</div>
+            <div class="calendar__booking" :style="getBookingStyle(booking)">
+              {{ booking.name }}
+            </div>
           </div>
         </tr>
       </tbody>
@@ -29,7 +31,7 @@
 <script>
 import NavigationButtons from './NavigationButtons.vue';
 import store from '../store';
-import { getMondayDate, isDateInRange, countDaysInRange, countDaysOffset, dateToString } from '../utils/date-utils';
+import { getMondayDate, isDateInRange, countDaysInRange, countDaysOffset, dateToString, moveDateByOffset } from '../utils/date-utils';
 
 const cellWidth = 162;
 
@@ -57,7 +59,7 @@ export default {
     },
     currentWeek() {
       const dates = [];
-      let currentDate = new Date(this.startWeekDate);
+      const currentDate = new Date(this.startWeekDate);
 
       while (currentDate <= this.endWeekDate) {
         dates.push(dateToString(currentDate));
@@ -98,7 +100,6 @@ export default {
         totalDaysInRange -= 1;
       }
 
-
       if (isDateInRange(booking.end, this.startWeekDate, this.endWeekDate)) {
         borderTopRightRadius = '20px';
         borderBottomRightRadius = '20px';
@@ -109,48 +110,27 @@ export default {
       width += totalDaysInRange * cellWidth;
 
       return {
-        style: {
-          width: width + 'px',
-          left: cellOffsetX + 161 + 'px',
-          borderTopLeftRadius,
-          borderBottomLeftRadius,
-          borderTopRightRadius,
-          borderBottomRightRadius,
-          position: 'absolute',
-          height: '62px',
-          backgroundColor: 'deepskyblue',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        },
+        width: `${width}px`,
+        left: cellOffsetX + cellWidth + 'px',
+        borderTopLeftRadius,
+        borderBottomLeftRadius,
+        borderTopRightRadius,
+        borderBottomRightRadius,
       };
     },
     setPrevWeek() {
-      const start = new Date(this.startWeekDate);
-      const end = new Date(this.endWeekDate);
-      this.startWeekDate = start.setDate(start.getDate() - 7);
-      this.endWeekDate = end.setDate(end.getDate() - 7);
+      this.startWeekDate = moveDateByOffset(this.startWeekDate, -7);
+      this.endWeekDate = moveDateByOffset(this.endWeekDate, -7);
     },
     setNextWeek() {
-      const start = new Date(this.startWeekDate);
-      const end = new Date(this.endWeekDate);
-      this.startWeekDate = start.setDate(start.getDate() + 7);
-      this.endWeekDate = end.setDate(end.getDate() + 7);
+      this.startWeekDate = moveDateByOffset(this.startWeekDate, 7);
+      this.endWeekDate = moveDateByOffset(this.endWeekDate, 7);
     },
     setCurrentWeek() {
-      const start = new Date();
-      const end = new Date();
-      this.startWeekDate = start.setDate(start.getDate());
-      this.endWeekDate = end.setDate(start.getDate() + 6);
+      this.startWeekDate = getMondayDate(new Date());
+      this.endWeekDate = moveDateByOffset(this.startWeekDate, 6);
     },
   },
-  created() { //TODO remove
-    const bookings = this.bookings.filter((booking) => {
-      const totalDaysInRange = countDaysInRange(this.startWeekDate, this.endWeekDate, booking.start, booking.end);
-      return totalDaysInRange != 0;
-    });
-    console.log(bookings);
-  }
 };
 </script>
 
@@ -169,6 +149,10 @@ thead>tr>th {
   padding: 5px 30px;
 }
 
+tbody>tr>th {
+  min-width: 158px;
+}
+
 .body__room {
   width: 100px;
   height: 60px;
@@ -179,10 +163,12 @@ thead>tr>th {
   margin-top: 12px;
 }
 
-.cell__box {
+.calendar__booking {
+  position: absolute;
+  height: 62px;
+  background-color: deepskyblue;
   display: flex;
-  width: 100%;
-  height: 50px;
-  background-color: green;
+  justify-content: center;
+  align-items: center;
 }
 </style>
