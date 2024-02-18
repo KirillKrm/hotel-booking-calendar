@@ -1,28 +1,35 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="app">
+    <CalendarDisplay></CalendarDisplay>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import CalendarDisplay from './components/CalendarDisplay.vue';
+import bookingsJson from './bookings.json';
+import store from './store';
 
 export default {
   name: 'App',
+  store,
   components: {
-    HelloWorld
-  }
-}
+    CalendarDisplay,
+  },
+  beforeCreate() {
+    store.commit('setBookings', bookingsJson);
+  },
+};
 </script>
 
 <style>
-#app {
+body {
+  margin: 0;
+}
+
+.app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  padding: 12px;
 }
 </style>
