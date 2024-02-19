@@ -1,17 +1,17 @@
 <template>
-  <div class="popup">
+  <div class="popup" v-if="isVisible">
     <div class="popup__guest">
-      <span class="guest__name">{{ 'Name Surname' }}</span>
-      <span>{{ '000-000-0000' }}</span>
-      <span>{{ 'surname@name.com' }}</span>
+      <span class="guest__name">{{ name }}</span>
+      <span>{{ phone }}</span>
+      <span>{{ email }}</span>
     </div>
     <div class="popup__room">
-      <span>{{ 'roomType' }}</span>
-      <b>Number of Guests:</b>
-      <span>Adults: {{ }}</span>
-      <span>Childrens: {{ }}</span>
+      <span>{{ typeOfApartments }}</span>
+      <b>Number of Guests: </b>
+      <span>Adults: {{ guestInfo.adults }}</span>
+      <span>Childrens: {{ guestInfo.children }}</span>
     </div>
-    <button class="popup__close-button">Close</button>
+    <button class="popup__close-button" @click="closePopup">Close</button>
   </div>
 </template>
 
@@ -23,7 +23,14 @@ export default {
     phone: String,
     email: String,
     typeOfApartments: String,
-    guestInfo: { adults: Number, children: Number }
+    guestInfo: { adults: Number, children: Number },
+    isVisible: Boolean,
+    closePopup: Function
+  },
+  data() {
+    return {};
+  },
+  methods: {
   }
 };
 </script>
@@ -32,11 +39,20 @@ export default {
 .popup {
   display: flex;
   flex-direction: column;
-  width: 200px;
+  position: absolute;
+  left: 50% - 200px;
+  top: 100%;
+  z-index: 1;
+  min-width: 200px;
   padding: 20px;
   border: 1px solid;
   border-radius: 10px;
+  background-color: white;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.popup:hover {
+  cursor: default;
 }
 
 .popup__guest {
@@ -64,5 +80,9 @@ export default {
   color: white;
   border-radius: 4px;
   padding: 4px 16px;
+}
+
+.popup__close-button:hover {
+  cursor: pointer;
 }
 </style>

@@ -18,8 +18,12 @@
           <th v-for="(date, index) in currentWeek" :key="index"></th>
 
           <div v-for="booking in bookingsInWeekForRoom(roomDetails)" :key="booking.id">
-            <div class="calendar__booking" :style="getBookingStyle(booking)">
+            <div class="calendar__booking" :style="getBookingStyle(booking)" @click="selectPopup(booking.id)">
               {{ booking.name }}
+              <ReservationPopup v-if="currentPopup.id == booking.id" :isVisible="currentPopup.state"
+                :closePopup="closePopup" :name="booking.name" :phone="booking.phone" :email="booking.email"
+                :typeOfApartments="booking.typeOfApartments" :guestInfo="booking.guestInfo">
+              </ReservationPopup>
             </div>
           </div>
         </tr>
@@ -30,6 +34,7 @@
 
 <script>
 import NavigationButtons from './NavigationButtons.vue';
+import ReservationPopup from './ReservationPopup.vue';
 import store from '../store';
 import { getMondayDate, isDateInRange, countDaysInRange, countDaysOffset, dateToString, moveDateByOffset } from '../utils/date-utils';
 
@@ -37,7 +42,7 @@ const cellWidth = 162;
 
 export default {
   name: 'CalendarDisplay',
-  components: { NavigationButtons },
+  components: { NavigationButtons, ReservationPopup },
   store,
   data() {
     const startDate = getMondayDate(new Date());
@@ -45,6 +50,7 @@ export default {
     const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
     return {
+      currentPopup: { id: String, state: Boolean },
       bookings: store.getters.getAllBookings,
       startWeekDate: startDate,
       endWeekDate: endDate,
@@ -104,7 +110,6 @@ export default {
         borderTopRightRadius = '20px';
         borderBottomRightRadius = '20px';
         width += cellWidth - endCellOffset;
-        // totalDaysInRange -= 1;
       }
 
       width += totalDaysInRange * cellWidth;
@@ -129,6 +134,14 @@ export default {
     setCurrentWeek() {
       this.startWeekDate = getMondayDate(new Date());
       this.endWeekDate = moveDateByOffset(this.startWeekDate, 6);
+    },
+    selectPopup(bookingId) {
+      if (this.currentPopup.id == bookingId) return;
+      this.currentPopup.id = bookingId;
+      this.currentPopup.state = true;
+    },
+    closePopup() {
+      this.currentPopup.state = false;
     },
   },
 };
@@ -170,5 +183,9 @@ tbody>tr>th {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.calendar__booking:hover {
+  cursor: pointer;
 }
 </style>
